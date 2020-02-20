@@ -10,7 +10,7 @@
 			"name": "User",
 			"item": [
 				{
-					"name": "http://localhost:8080/users/1",
+					"name": "Get all users",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -38,7 +38,7 @@
 					"response": []
 				},
 				{
-					"name": "http://localhost:8080/users",
+					"name": "Add user",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -74,7 +74,7 @@
 					"response": []
 				},
 				{
-					"name": "http://localhost:8080/users",
+					"name": "Update user",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -110,7 +110,7 @@
 					"response": []
 				},
 				{
-					"name": "http://localhost:8080/users/1",
+					"name": "Delete user",
 					"request": {
 						"method": "DELETE",
 						"header": [],

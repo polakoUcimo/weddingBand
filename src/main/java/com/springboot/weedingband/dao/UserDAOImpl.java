@@ -70,6 +70,23 @@ public class UserDAOImpl implements UserDAO {
 		
 		return user;
 	}
+	
+	/**
+	 * Find user by username
+	 */
+	@Override
+	public User findByUsername(String theUsername) {
+		
+		getSession();
+		 
+		Query<User> theQuery = currentSession.createQuery("from User where username=:username", User.class);
+		
+		theQuery.setParameter("username", theUsername);
+		
+		User user = theQuery.uniqueResult();
+		
+		return user;
+	}
 
 	/**
 	 * Check if user exists, if not saves him to database.
@@ -126,8 +143,6 @@ public class UserDAOImpl implements UserDAO {
 		theQuery.setParameter("userId", theId);
 		
 		theQuery.executeUpdate(); 
-		
-		currentSession.flush();
 		
 	}
 	

@@ -26,6 +26,13 @@ public interface UserDAO {
 	public User findById(int theId);
 	
 	/**
+	 * Find user by username
+	 * @param theUsername username
+	 * @return user with specific username.
+	 */
+	public User findByUsername(String theUsername);
+	
+	/**
 	 * Save user.
 	 * @param theUser user
 	 * @return saves user to database.

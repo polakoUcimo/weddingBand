@@ -26,6 +26,13 @@ public interface UserService {
 	public User findById(int theId);
 	
 	/**
+	 * Find user by username
+	 * @param theUsername users username
+	 * @return the user with specific username.
+	 */
+	public User findByUsername(String theUsername);
+	
+	/**
 	 * Save user.
 	 * @param theUser user to be saved
 	 */
