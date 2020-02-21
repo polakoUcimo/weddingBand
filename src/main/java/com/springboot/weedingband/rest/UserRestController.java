@@ -1,9 +1,6 @@
 package com.springboot.weedingband.rest;
 
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,8 +25,6 @@ import com.springboot.weedingband.util.Util;
  */
 @RestController
 public class UserRestController {
-	
-	private static final Logger LOGGER=LoggerFactory.getLogger(UserRestController.class);
 	
 	/**
 	 * User service
@@ -86,7 +81,6 @@ public class UserRestController {
 		
 		String encoder = Util.encryptePassword(theUser.getPassword());
 		
-//		theUser.setPassword("{bcrypt}"+encoder);
 		theUser.setPassword(encoder); 
 		
 		return userService.save(theUser);
