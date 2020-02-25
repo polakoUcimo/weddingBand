@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<changeSet author="liquibase-docs" id="addColumn-example">
-    <addColumn catalogName="cat"
-            schemaName="weeding_band"
-            tableName="user">
-        <column name="address" type="varchar(255)"/>
-    </addColumn>
-</changeSet>

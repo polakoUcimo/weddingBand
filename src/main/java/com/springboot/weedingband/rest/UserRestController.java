@@ -2,6 +2,7 @@ package com.springboot.weedingband.rest;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,11 +10,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
-
+import com.springboot.weedingband.dao.ConfirmationTokenRepository;
+import com.springboot.weedingband.entity.ConfirmationToken;
 import com.springboot.weedingband.entity.Responce;
 import com.springboot.weedingband.entity.User;
+import com.springboot.weedingband.service.EmailSenderService;
 import com.springboot.weedingband.service.UserService;
 import com.springboot.weedingband.util.Util;
 
@@ -35,6 +42,18 @@ public class UserRestController {
 	 * Bcrypt password encoder
 	 */
 	private BCryptPasswordEncoder encoder;
+	
+	/**
+	 * Confirmation token repository
+	 */
+	@Autowired
+    private ConfirmationTokenRepository confirmationTokenRepository;
+
+	/**
+	 * Email sender service
+	 */
+    @Autowired
+    private EmailSenderService emailSenderService;
 
 	@Autowired
 	public UserRestController(UserService theUserService) {
@@ -75,7 +94,7 @@ public class UserRestController {
 	 * @return added user.
 	 */
 	@PostMapping("/users")
-	public Responce addUser(@RequestBody User theUser) {
+	public String addUser(@RequestBody User theUser) {
 		
 		theUser.setId(0);
 		
@@ -83,8 +102,50 @@ public class UserRestController {
 		
 		theUser.setPassword(encoder); 
 		
-		return userService.save(theUser);
+		Responce responce = userService.save(theUser);
+		
+		ConfirmationToken confirmationToken = new ConfirmationToken(theUser);
+
+		/**
+		 * This is not working. Fix this.
+		 */
+        confirmationTokenRepository.save(confirmationToken);
+		
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo("kovacjugoslav@gmail.com");
+        mailMessage.setSubject("Complete Registration!");
+        mailMessage.setFrom("kovacjugoslav@gmail.com");
+        mailMessage.setText("To confirm your account, please click here : "
+        +"http://localhost:8080/confirm-account?token="+confirmationToken.getConfirmationToken());
+
+        emailSenderService.sendEmail(mailMessage);
+		
+		return "Mail has been sent";
 	}
+	
+	@RequestMapping(value="/confirm-account", method= {RequestMethod.GET, RequestMethod.POST})
+    public Responce confirmUserAccount(ModelAndView modelAndView, @RequestParam("token")String confirmationToken)
+    {
+		Responce responce=null;
+        ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
+        
+        
+        if(token != null)
+        {
+        	User user = userService.findById(token.getUser().getId());
+        	user.setEnabled(true);
+        	userService.update(user);
+            responce = new Responce(user.getUsername(),"User saved",true);
+            modelAndView.setViewName("accountVerified");
+        }
+        else
+        {
+            modelAndView.addObject("message","The link is invalid or broken!");
+            modelAndView.setViewName("error");
+        }
+
+        return responce;
+    }
 	
 	/**
 	 * Check if user has account and simulate login.

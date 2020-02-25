@@ -20,7 +20,7 @@ public class User {
 	 * Id of the user, auto generated.
 	 */
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id",unique = true, nullable = false)
 	private int id;
 	
@@ -37,6 +37,12 @@ public class User {
 	private String password;
 	
 	/**
+	 * Flag is account enabled.
+	 */
+	@Column(name = "is_enabled")
+	private boolean isEnabled;
+	
+	/**
 	 * User default empty constructor
 	 */
 	public User() {
@@ -48,9 +54,10 @@ public class User {
 	 * @param theUsername username.
 	 * @param thePassword password.
 	 */
-	public User(String theUsername, String thePassword) {
+	public User(String theUsername, String thePassword, boolean theIsEnabled) {
 		username = theUsername;
 		password = thePassword;
+		isEnabled = theIsEnabled;
 	}
 
 	/**
@@ -80,6 +87,14 @@ public class User {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public boolean isEnabled() {
+		return isEnabled;
+	}
+
+	public void setEnabled(boolean isEnabled) {
+		this.isEnabled = isEnabled;
 	}
 
 	@Override

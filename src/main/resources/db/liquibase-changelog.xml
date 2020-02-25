@@ -6,11 +6,11 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
          
-	<!-- <changeSet author="liquibase-docs" id="addColumn-example4">
+	<!-- <changeSet author="jugoslav" id="flag_is_enabled3">
 	    <addColumn
 	            schemaName="weeding_band"
 	            tableName="user">
-	        <column name="123" type="varchar(255)"/>
+	        <column name="is_enabled" type="TinyInt" value="0"/>
 	    </addColumn>
-	</changeSet> -->
+	</changeSet>  -->
 </databaseChangeLog>
