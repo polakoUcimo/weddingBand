@@ -102,7 +102,7 @@ public class UserRestController {
 		
 		theUser.setPassword(encoder); 
 		
-		Responce responce = userService.save(theUser);
+		userService.save(theUser);
 		
 		ConfirmationToken confirmationToken = new ConfirmationToken(theUser);
 
@@ -110,21 +110,18 @@ public class UserRestController {
 		 * This is not working. Fix this.
 		 */
         confirmationTokenRepository.save(confirmationToken);
-		
-		SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo("kovacjugoslav@gmail.com");
-        mailMessage.setSubject("Complete Registration!");
-        mailMessage.setFrom("kovacjugoslav@gmail.com");
-        mailMessage.setText("To confirm your account, please click here : "
-        +"http://localhost:8080/confirm-account?token="+confirmationToken.getConfirmationToken());
-
-        emailSenderService.sendEmail(mailMessage);
-		
-		return "Mail has been sent";
+        
+        String toMail = "kovacjugoslav@gmail.com";
+        String subject = "Complete Registration!";
+        String fromMail="kovacjugoslav@gmail.com";
+        String textMail="To confirm your account, please click here : \"\r\n" + 
+        		"        +\"http://localhost:8080/confirm-account?token=" + confirmationToken.getConfirmationToken();
+        
+		return Util.sendMail(emailSenderService,toMail, subject, fromMail, textMail);
 	}
 	
 	@RequestMapping(value="/confirm-account", method= {RequestMethod.GET, RequestMethod.POST})
-    public Responce confirmUserAccount(ModelAndView modelAndView, @RequestParam("token")String confirmationToken)
+    public Responce confirmUserAccount(@RequestParam("token")String confirmationToken)
     {
 		Responce responce=null;
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
@@ -135,13 +132,11 @@ public class UserRestController {
         	User user = userService.findById(token.getUser().getId());
         	user.setEnabled(true);
         	userService.update(user);
-            responce = new Responce(user.getUsername(),"User saved",true);
-            modelAndView.setViewName("accountVerified");
+            responce = new Responce(user.getUsername(),"User saved",true,user.isEnabled());
         }
         else
         {
-            modelAndView.addObject("message","The link is invalid or broken!");
-            modelAndView.setViewName("error");
+        	 responce = new Responce("error","User not saved",false,false);
         }
 
         return responce;
@@ -162,9 +157,9 @@ public class UserRestController {
 		User user = userService.findByUsername(theUser.getUsername());
 		
 		if(encoder.matches(theUser.getPassword(), user.getPassword())) {
-			responce = new Responce(theUser.getUsername(),"LOGIN SUCCESS",true);
+			responce = new Responce(theUser.getUsername(),"LOGIN SUCCESS",true,theUser.isEnabled());
 		}else{
-			responce = new Responce(theUser.getUsername(),"WRONG PASSWORD",false);
+			responce = new Responce(theUser.getUsername(),"WRONG PASSWORD",false,theUser.isEnabled());
 		}
 		
 		return responce;

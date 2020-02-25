@@ -22,6 +22,8 @@ public class Responce {
 	 */
 	private boolean isSaved;
 	
+	private boolean isEnabled;
+	
 	/**
 	 * Empty constractor.
 	 */
@@ -36,10 +38,11 @@ public class Responce {
 	 * @param message message
 	 * @param isSaved is saved in database
 	 */
-	public Responce(String username, String message, boolean isSaved) {
+	public Responce(String username, String message, boolean isSaved, boolean isEnabled) {
 		this.username = username;
 		this.message = message;
 		this.isSaved = isSaved;
+		this.isEnabled = isEnabled;
 	}
 
 
@@ -63,8 +66,6 @@ public class Responce {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	
-	
 
 	public boolean isSaved() {
 		return isSaved;
@@ -75,12 +76,21 @@ public class Responce {
 	}
 
 
-	@Override
-	public String toString() {
-		return "Responce [username=" + username + ", message=" + message + ", isSaved=" + isSaved + "]";
+	public boolean isEnabled() {
+		return isEnabled;
 	}
 
-	
+
+	public void setEnabled(boolean isEnabled) {
+		this.isEnabled = isEnabled;
+	}
+
+
+	@Override
+	public String toString() {
+		return "Responce [username=" + username + ", message=" + message + ", isSaved=" + isSaved + ", isEnabled="
+				+ isEnabled + "]";
+	}
 
 	
 

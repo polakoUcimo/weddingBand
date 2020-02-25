@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Repository;
 
+import com.springboot.weedingband.entity.ConfirmationToken;
 import com.springboot.weedingband.entity.Responce;
 import com.springboot.weedingband.entity.User;
+import com.springboot.weedingband.util.Util;
 
 /**
  * User DAO Implementation - all logic goes here.
@@ -31,6 +33,12 @@ public class UserDAOImpl implements UserDAO {
 	 * Hibernate session.
 	 */
 	private Session currentSession;
+	
+	/**
+	 * Confirmation token repository
+	 */
+	@Autowired
+    private ConfirmationTokenRepository confirmationTokenRepository;
 	
 	/**
 	 * Contructor with the entity manager set.
@@ -107,9 +115,9 @@ public class UserDAOImpl implements UserDAO {
 
 		if(user==null) {
 			currentSession.save(theUser);
-			responce = new Responce(theUser.getUsername(), "User has been saved", true);
+			responce = new Responce(theUser.getUsername(), "User has been saved", true,theUser.isEnabled());
 		}else {
-			responce = new Responce(theUser.getUsername(), "Username allready exists", false);
+			responce = new Responce(theUser.getUsername(), "Username allready exists", false,theUser.isEnabled());
 		}
 		
 		return responce;
@@ -137,12 +145,24 @@ public class UserDAOImpl implements UserDAO {
 	public void deleteById(int theId) {
 		
 		getSession();
+		
+		Util.getLogger(UserDAOImpl.class).warn("User id: " + theId);
+		
+		User user = findById(theId);
+		
+		currentSession.delete(user);
+		
+//		Query<?> theQuery = currentSession.createQuery("delete from ConfirmationToken where id:=userId");
+//		
+//		theQuery.setParameter("userId", theId);
+//		
+//		theQuery.executeUpdate();
 		 
-		Query theQuery = currentSession.createQuery("delete from User where id=:userId");
-		
-		theQuery.setParameter("userId", theId);
-		
-		theQuery.executeUpdate(); 
+//		Query<?> theQuery = currentSession.createQuery("delete from User where id=:userId");
+//		
+//		theQuery.setParameter("userId", theId);
+//		
+//		theQuery.executeUpdate(); 
 		
 	}
 	

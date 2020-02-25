@@ -1,10 +1,12 @@
 package com.springboot.weedingband.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -41,6 +43,10 @@ public class User {
 	 */
 	@Column(name = "is_enabled")
 	private boolean isEnabled;
+	
+	 @OneToOne(mappedBy = "user",
+		        cascade = CascadeType.ALL, orphanRemoval = true)
+	 private ConfirmationToken confirmationToken;
 	
 	/**
 	 * User default empty constructor
