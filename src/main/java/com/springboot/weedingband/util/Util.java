@@ -7,6 +7,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.springboot.weedingband.service.EmailSenderService;
 
+import junit.framework.Test;
+
 /**
  * Util class
  * @author PC
@@ -59,6 +61,10 @@ public class Util {
         emailSenderService.sendEmail(mailMessage);
 		
 		return "Mail has been sent";
+	}
+	
+	public static String test() {
+		return null;
 	}
 	
 }
