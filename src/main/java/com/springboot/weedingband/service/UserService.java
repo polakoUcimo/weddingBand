@@ -33,6 +33,12 @@ public interface UserService {
 	public User findByUsername(String theUsername);
 	
 	/**
+	 * Find user by email
+	 * @param email users email
+	 * @return the user with specific email.
+	 */
+	public User findByEmail(String email);
+	/**
 	 * Save user.
 	 * @param theUser user to be saved
 	 */

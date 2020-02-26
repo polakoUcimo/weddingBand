@@ -2,6 +2,7 @@ package com.springboot.weedingband.rest;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -87,6 +88,17 @@ public class UserRestController {
 		return user;
 	}
 	
+	@GetMapping("/users/{usereEmail}")
+	public User findUserByEmail(@PathVariable String userEmail) {
+		
+		User user =userService.findByEmail(userEmail);
+		
+		if(user == null) {
+			throw new UserNotFoundException("User id not found - " +userEmail);
+		}
+		
+		return user;
+	}
 	
 	/**
 	 * Add user to the database.
@@ -111,9 +123,9 @@ public class UserRestController {
 		 */
         confirmationTokenRepository.save(confirmationToken);
         
-        String toMail = "kovacjugoslav@gmail.com";
+        String toMail = "kosovac.strahinja@gmail.com";
         String subject = "Complete Registration!";
-        String fromMail="kovacjugoslav@gmail.com";
+        String fromMail="kosovac.strahinja@gmail.com";
         String textMail="To confirm your account, please click here : \"\r\n" + 
         		"        +\"http://localhost:8080/confirm-account?token=" + confirmationToken.getConfirmationToken();
         
@@ -204,6 +216,61 @@ public class UserRestController {
 		userService.deleteById(userId);
 		
 		return "Deleted employee id - " + userId;
-	}	
+	}
+	
+	
+	
+	@PostMapping("/password-request-reset")
+	public Responce getUserMailResponce(@RequestBody String email)
+	{
+		//User user=userService.findByEmail(email);
+		
+//		if(user == null) {
+//				
+//			throw new UserNotFoundException("User with that email is not found  ");
+//			
+//		    }	
+//		else {
+			User user = new User("test", "test", true);
+			sendPasswordMail(user,email);
+			return new Responce(user.getUsername(),"email has been sent",true,true);
+//			}
+	}
+	
+	public String sendPasswordMail(User user, String email) {
+		
+
+		ConfirmationToken confirmationToken = new ConfirmationToken(user);
+		confirmationTokenRepository.save(confirmationToken);
+	    
+	    String toMail = "kosovac.strahinja@gmail.com";
+	    String subject = "Complete Registration!";
+	    String fromMail="kosovac.strahinja@gmail.com";
+	    String textMail="To confirm your account, please click here : \"\r\n" + 
+	    		"        +\"http://localhost:8080/password-page-reset?token=" + confirmationToken.getConfirmationToken();
+    return Util.sendMail(emailSenderService,toMail, subject, fromMail, textMail);}
+
+	
+	@PostMapping("/password-page-reset")	
+	 public Responce getPassword(@RequestBody String password, @RequestParam("token")String confirmationToken) 
+	{	
+		
+		Responce responce=null;
+		ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
+    	
+		 
+        if(token != null) {
+		User user = userService.findById(token.getUser().getId());
+    	user.setEnabled(true);
+    	user.setPassword(Util.encryptePassword(password));
+    	userService.update(user);
+    	Util.getLogger(UserRestController.class).warn("VALUES: " + user.getId() + " " + user.getPassword() + " " + confirmationToken + " " + password);
+        responce = new Responce(user.getUsername(),"User saved",true,user.isEnabled());
+        }
+        else{
+        	responce = new Responce("error","wrong password",false,false);
+        }
+		return responce;
+	}
 	
 }
