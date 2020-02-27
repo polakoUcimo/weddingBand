@@ -1,4 +1,4 @@
-package com.springboot.weedingband.rest;
+package com.springboot.weedingband.errorhandle;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
  *
  */
 @ControllerAdvice
-public class UserRestExceptionHandler {
+public class RestExceptionHandler {
 	
 	/**
 	 * Handle wrong id 
@@ -19,9 +19,9 @@ public class UserRestExceptionHandler {
 	 * @return exception request code and message
 	 */
 	@ExceptionHandler
-	public ResponseEntity<UserErrorResponce> handlException(UserNotFoundException exc){
+	public ResponseEntity<ErrorResponse> handlException(UserNotFoundException exc){
 		
-		UserErrorResponce errorResponce = new UserErrorResponce();
+		ErrorResponse errorResponce = new ErrorResponse();
 		
 		errorResponce.setStatus(HttpStatus.NOT_FOUND.value());
 		errorResponce.setMessage(exc.getMessage());
@@ -31,20 +31,37 @@ public class UserRestExceptionHandler {
 	}
 	
 	/**
-	 * Handle wrong id type.
+	 * Handle bad id type
 	 * @param exc exception
 	 * @return exception request code and message
 	 */
 	@ExceptionHandler
-	public ResponseEntity<UserErrorResponce> handlException(Exception exc){
+	public ResponseEntity<ErrorResponse> handlException(Exception exc){
 		
-		UserErrorResponce errorResponce = new UserErrorResponce();
+		ErrorResponse errorResponce = new ErrorResponse();
 		
 		errorResponce.setStatus(HttpStatus.BAD_REQUEST.value());
 		errorResponce.setMessage(exc.getMessage());
 		errorResponce.setTimeStamp(System.currentTimeMillis());
 		
 		return new ResponseEntity<>(errorResponce, HttpStatus.BAD_REQUEST);
+	}
+	
+	/**
+	 * Handle forbidden entry.
+	 * @param exc exception
+	 * @return exception request code and message
+	 */
+	@ExceptionHandler
+	public ResponseEntity<ErrorResponse> handleForbiddenException(ForbidenException exc){
+		
+		ErrorResponse errorResponce = new ErrorResponse();
+		
+		errorResponce.setStatus(HttpStatus.FORBIDDEN.value());
+		errorResponce.setMessage(exc.getMessage());
+		errorResponce.setTimeStamp(System.currentTimeMillis());
+		
+		return new ResponseEntity<>(errorResponce, HttpStatus.FORBIDDEN);
 	}
 
 }

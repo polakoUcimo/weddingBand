@@ -21,7 +21,8 @@ public class Util {
 	 */
 	public static String encryptePassword(String password) {
 
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12); // Strength set as 12
+		// Strength set as 12
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12); 
 		String encodedPassword = encoder.encode(password);
 		
 		return encodedPassword;
@@ -33,7 +34,7 @@ public class Util {
 	 * @return logger
 	 */
 	
-	public static Logger getLogger(Class class1) {
+	public static Logger getLogger(Class<?> class1) {
 		
 		Logger logger =LoggerFactory.getLogger(class1);
 		
@@ -41,7 +42,7 @@ public class Util {
 	}
 	
 	/**
-	 * Function for sending email (authentification mail or forgot password)
+	 * Function for sending email (authentication mail or forgot password)
 	 * @param toMail mail witch we send.
 	 * @param subject subject of the mail.
 	 * @param fromMail from what mail we send.
@@ -59,6 +60,17 @@ public class Util {
         emailSenderService.sendEmail(mailMessage);
 		
 		return "Mail has been sent";
+	}
+	
+	/**
+	 * Enum roles.
+	 * @author PC
+	 *
+	 */
+	public static enum Roles {
+		  USER,
+		  BAND,
+		  ADMIN
 	}
 	
 }

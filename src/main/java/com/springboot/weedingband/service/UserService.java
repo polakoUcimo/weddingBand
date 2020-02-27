@@ -2,8 +2,8 @@ package com.springboot.weedingband.service;
 
 import java.util.List;
 
-import com.springboot.weedingband.entity.Responce;
 import com.springboot.weedingband.entity.User;
+import com.springboot.weedingband.model.ResponceBody;
 
 /**
  * User service interface
@@ -23,7 +23,7 @@ public interface UserService {
 	 * @param theId id of the user.
 	 * @return
 	 */
-	public User findById(int theId);
+	public User findById(long theId);
 	
 	/**
 	 * Find user by username
@@ -36,7 +36,7 @@ public interface UserService {
 	 * Save user.
 	 * @param theUser user to be saved
 	 */
-	public Responce save(User theUser);
+	public ResponceBody save(User theUser);
 	
 	/**
 	 * Update user

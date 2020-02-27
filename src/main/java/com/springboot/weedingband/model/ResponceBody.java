@@ -1,11 +1,11 @@
-package com.springboot.weedingband.entity;
+package com.springboot.weedingband.model;
 
 /**
  * Responce entity
  * @author PC
  *
  */
-public class Responce {
+public class ResponceBody {
 	
 	/**
 	 * Username
@@ -27,7 +27,7 @@ public class Responce {
 	/**
 	 * Empty constractor.
 	 */
-	public Responce() {
+	public ResponceBody() {
 		
 	}
 	
@@ -38,7 +38,7 @@ public class Responce {
 	 * @param message message
 	 * @param isSaved is saved in database
 	 */
-	public Responce(String username, String message, boolean isSaved, boolean isEnabled) {
+	public ResponceBody(String username, String message, boolean isSaved, boolean isEnabled) {
 		this.username = username;
 		this.message = message;
 		this.isSaved = isSaved;
