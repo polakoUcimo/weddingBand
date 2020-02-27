@@ -97,11 +97,11 @@ public class UserRestController {
 	 * @return user with specific id.
 	 */
 	@GetMapping("/users/{userId}")
-	public User findUserById(@PathVariable int userId) {
+	public User findUserById(@PathVariable int userId,@RequestBody Id id) {
 		
-		User user = userService.findById(userId);
+		User user = userService.findById(id.getId());
 		
-		Roles roles = rolesRepository.findByUserId(userId);
+		Roles roles = rolesRepository.findByUserId(id.getId());
 		
 		if(user == null) {
 			throw new UserNotFoundException("User id not found - " + userId);
@@ -206,7 +206,7 @@ public class UserRestController {
 		
 		User user = userService.findById(theUser.getId());
 		
-		Roles roles = rolesRepository.findByUserId(theUser.getId());
+		Roles roles = rolesRepository.findByUserId(theUser.getIdUserRole());
 		
 		if(user == null) {
 			throw new UserNotFoundException("User id not found - " + theUser.getId());
@@ -227,13 +227,13 @@ public class UserRestController {
 	 * @return message if user has been deleted.
 	 */
 	@DeleteMapping("/users/{userId}")
-	public ResponceBody deleteuser(@PathVariable int userId) {
+	public ResponceBody deleteuser(@PathVariable int userId,@RequestBody Id id) {
 		
 		ResponceBody responce;
 		
 		User user = userService.findById(userId);
 		
-		Roles roles = rolesRepository.findByUserId(userId);
+		Roles roles = rolesRepository.findByUserId(id.getId());
 		
 		if(user == null) {
 			throw new UserNotFoundException("User id not found - " + userId);

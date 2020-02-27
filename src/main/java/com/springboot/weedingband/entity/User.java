@@ -57,6 +57,12 @@ public class User {
 	private String role;
 	
 	/**
+	 * Id of the user wanting to change something.
+	 */
+	@Transient
+	private long idUserRole;
+	
+	/**
 	 * Flag is account enabled.
 	 */
 	@Column(name = "is_enabled")
@@ -146,5 +152,15 @@ public class User {
 	public void setRole(String role) {
 		this.role = role;
 	}
+
+	public long getIdUserRole() {
+		return idUserRole;
+	}
+
+	public void setIdUserRole(long idUserRole) {
+		this.idUserRole = idUserRole;
+	}
+	
+	
 
 }
