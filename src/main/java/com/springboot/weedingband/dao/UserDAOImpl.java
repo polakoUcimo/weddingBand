@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.springboot.weedingband.entity.ConfirmationToken;
-import com.springboot.weedingband.entity.Responce;
 import com.springboot.weedingband.entity.User;
+import com.springboot.weedingband.model.ResponceBody;
 import com.springboot.weedingband.util.Util;
 
 /**
@@ -70,7 +70,7 @@ public class UserDAOImpl implements UserDAO {
 	 */
 	@Override
 	@Transactional
-	public User findById(int theId) {
+	public User findById(long theId) {
 		
 		getSession();
 		
@@ -101,9 +101,9 @@ public class UserDAOImpl implements UserDAO {
 	 */
 	@Override
 	@Transactional
-	public Responce save(User theUser) {
+	public ResponceBody save(User theUser) {
 		
-		Responce responce;
+		ResponceBody responce;
 	
 		getSession();
 		
@@ -115,9 +115,9 @@ public class UserDAOImpl implements UserDAO {
 
 		if(user==null) {
 			currentSession.save(theUser);
-			responce = new Responce(theUser.getUsername(), "User has been saved", true,theUser.isEnabled());
+			responce = new ResponceBody(theUser.getUsername(), "User has been saved", true,theUser.isEnabled());
 		}else {
-			responce = new Responce(theUser.getUsername(), "Username allready exists", false,theUser.isEnabled());
+			responce = new ResponceBody(theUser.getUsername(), "Username allready exists", false,theUser.isEnabled());
 		}
 		
 		return responce;
@@ -130,9 +130,13 @@ public class UserDAOImpl implements UserDAO {
 	@Transactional
 	public void update(User theUser) {
 		
+		currentSession.clear();
+		
 		getSession();
 		
-		currentSession.merge(theUser);
+		Util.getLogger(UserDAOImpl.class).warn("User: " + theUser.getEmail(), theUser.getRole(), theUser.getUsername(), theUser.getId());
+		
+		currentSession.update(theUser);
 	}
 	
 	
@@ -151,18 +155,6 @@ public class UserDAOImpl implements UserDAO {
 		User user = findById(theId);
 		
 		currentSession.delete(user);
-		
-//		Query<?> theQuery = currentSession.createQuery("delete from ConfirmationToken where id:=userId");
-//		
-//		theQuery.setParameter("userId", theId);
-//		
-//		theQuery.executeUpdate();
-		 
-//		Query<?> theQuery = currentSession.createQuery("delete from User where id=:userId");
-//		
-//		theQuery.setParameter("userId", theId);
-//		
-//		theQuery.executeUpdate(); 
 		
 	}
 	
