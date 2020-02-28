@@ -2,8 +2,8 @@ package com.springboot.weedingband.dao;
 
 import java.util.List;
 
-import com.springboot.weedingband.entity.Responce;
 import com.springboot.weedingband.entity.User;
+import com.springboot.weedingband.model.ResponceBody;
 
 /**
  * User DAO
@@ -23,7 +23,7 @@ public interface UserDAO {
 	 * @param theId user id.
 	 * @return specific user with id.
 	 */
-	public User findById(int theId);
+	public User findById(long theId);
 	
 	/**
 	 * Find user by username
@@ -39,17 +39,24 @@ public interface UserDAO {
 	public User findByEmail(String email);
 	
 	/**
+	 * Find user by email
+	 * @param theEmail users email
+	 * @return user with specific email.
+	 */
+	public User findByEmail(String theEmail);
+	
+	/**
 	 * Save user.
 	 * @param theUser user
 	 * @return saves user to database.
 	 */
-	public Responce save(User theUser);
+	public ResponceBody save(User theUser);
 	
 	/**
 	 * Update the user.
 	 * @param theUser user.
 	 */
-	public void update(User theUser);
+	public void update(User thUser);
 	
 	/**
 	 * Delete user by id.

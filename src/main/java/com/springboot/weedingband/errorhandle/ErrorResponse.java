@@ -1,11 +1,11 @@
-package com.springboot.weedingband.rest;
+package com.springboot.weedingband.errorhandle;
 
 /**
  * User error responce
  * @author PC
  *
  */
-public class UserErrorResponce {
+public class ErrorResponse {
 	
 	/**
 	 * Status error.
@@ -25,7 +25,7 @@ public class UserErrorResponce {
 	/**
 	 * Default constructor
 	 */
-	public UserErrorResponce() {
+	public ErrorResponse() {
 		
 	}
 
@@ -35,7 +35,7 @@ public class UserErrorResponce {
 	 * @param message message
 	 * @param timeStamp timestamp.
 	 */
-	public UserErrorResponce(int status, String message, long timeStamp) {
+	public ErrorResponse(int status, String message, long timeStamp) {
 		this.status = status;
 		this.message = message;
 		this.timeStamp = timeStamp;

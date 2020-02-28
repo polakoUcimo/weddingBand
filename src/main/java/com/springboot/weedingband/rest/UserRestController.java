@@ -15,12 +15,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.springboot.weedingband.dao.ConfirmationTokenRepository;
+import com.springboot.weedingband.dao.UserDAOImpl;
 import com.springboot.weedingband.entity.ConfirmationToken;
-import com.springboot.weedingband.entity.Responce;
+import com.springboot.weedingband.entity.Roles;
+import com.springboot.weedingband.entity.RolesRepository;
 import com.springboot.weedingband.entity.User;
+import com.springboot.weedingband.errorhandle.ForbidenException;
+import com.springboot.weedingband.errorhandle.UserExistsException;
+import com.springboot.weedingband.errorhandle.UserNotFoundException;
+import com.springboot.weedingband.model.Id;
+import com.springboot.weedingband.model.ResponceBody;
 import com.springboot.weedingband.service.EmailSenderService;
 import com.springboot.weedingband.service.UserService;
 import com.springboot.weedingband.util.Util;
@@ -49,6 +55,12 @@ public class UserRestController {
 	 */
 	@Autowired
     private ConfirmationTokenRepository confirmationTokenRepository;
+	
+	/**
+	 * Roles repository
+	 */
+	@Autowired
+	private RolesRepository rolesRepository;
 
 	/**
 	 * Email sender service
@@ -66,9 +78,20 @@ public class UserRestController {
 	 * @return list of all users
 	 */
 	@GetMapping("/users")
-	public List<User> allUsers() {
+	public List<User> allUsers(@RequestBody Id id) {
 		
-		return userService.findAll();
+		User user = userService.findById(id.getId());
+		
+		Roles roles = rolesRepository.findByUserId(id.getId());
+		
+		if(user==null) {
+			throw new UserNotFoundException("User id not found - " + id.getId());
+		}else if(roles.getRole().equalsIgnoreCase(Util.Roles.ADMIN.name())) {
+			return userService.findAll();
+		}else {
+			throw new ForbidenException("Unauthorized entry");
+		}
+	
 	}
 	
 	/**
@@ -77,15 +100,20 @@ public class UserRestController {
 	 * @return user with specific id.
 	 */
 	@GetMapping("/users/{userId}")
-	public User findUserById(@PathVariable int userId) {
+	public User findUserById(@PathVariable int userId,@RequestBody Id id) {
 		
-		User user = userService.findById(userId);
+		User user = userService.findById(id.getId());
+		
+		Roles roles = rolesRepository.findByUserId(id.getId());
 		
 		if(user == null) {
 			throw new UserNotFoundException("User id not found - " + userId);
+		}else if(roles.getRole().equalsIgnoreCase(Util.Roles.ADMIN.name())) {
+			return user;
+		}else {
+			throw new ForbidenException("Unauthorized entry");
 		}
 		
-		return user;
 	}
 	
 	@GetMapping("/users/{usereEmail}")
@@ -101,29 +129,40 @@ public class UserRestController {
 	}
 	
 	/**
-	 * Add user to the database.
+	 * Add user to the database logic.
 	 * @param theUser the user to be added.
 	 * @return added user.
 	 */
 	@PostMapping("/users")
 	public String addUser(@RequestBody User theUser) {
 		
+		User user = userService.findByUsername(theUser.getUsername());
+		
+		User user2 = userService.findByEmail(theUser.getEmail());
+		
+		if (user!=null) {
+			throw new UserExistsException("User allready exist with: " + theUser.getUsername());
+		}else if(user2!=null) {
+			throw new UserExistsException("User allready exist with: " + theUser.getEmail());
+		}
+		
 		theUser.setId(0);
 		
 		String encoder = Util.encryptePassword(theUser.getPassword());
 		
-		theUser.setPassword(encoder); 
+		theUser.setPassword(encoder);
+		
 		
 		userService.save(theUser);
 		
 		ConfirmationToken confirmationToken = new ConfirmationToken(theUser);
+        confirmationTokenRepository.save(confirmationToken); 
 
-		/**
-		 * This is not working. Fix this.
-		 */
-        confirmationTokenRepository.save(confirmationToken);
-        
         String toMail = "kosovac.strahinja@gmail.com";
+
+        Roles roles = new Roles(theUser,theUser.getRole());
+        rolesRepository.save(roles);
+
         String subject = "Complete Registration!";
         String fromMail="kosovac.strahinja@gmail.com";
         String textMail="To confirm your account, please click here : \"\r\n" + 
@@ -132,10 +171,15 @@ public class UserRestController {
 		return Util.sendMail(emailSenderService,toMail, subject, fromMail, textMail);
 	}
 	
+	/**
+	 * Confirm account via email.
+	 * @param confirmationToken conformation token
+	 * @return response if it is successful 
+	 */
 	@RequestMapping(value="/confirm-account", method= {RequestMethod.GET, RequestMethod.POST})
-    public Responce confirmUserAccount(@RequestParam("token")String confirmationToken)
+    public ResponceBody confirmUserAccount(@RequestParam("token")String confirmationToken)
     {
-		Responce responce=null;
+		ResponceBody responce=null;
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
         
         
@@ -144,11 +188,11 @@ public class UserRestController {
         	User user = userService.findById(token.getUser().getId());
         	user.setEnabled(true);
         	userService.update(user);
-            responce = new Responce(user.getUsername(),"User saved",true,user.isEnabled());
+            responce = new ResponceBody(user.getUsername(),"User saved",true,user.isEnabled());
         }
         else
         {
-        	 responce = new Responce("error","User not saved",false,false);
+        	 responce = new ResponceBody("error","User not saved",false,false);
         }
 
         return responce;
@@ -160,18 +204,18 @@ public class UserRestController {
 	 * @return added user.
 	 */
 	@PostMapping("/users/login")
-	public Responce loginUser(@RequestBody User theUser) {
+	public ResponceBody loginUser(@RequestBody User theUser) {
 		
-		Responce responce;
+		ResponceBody responce;
 		
 		encoder = new BCryptPasswordEncoder();
 		
 		User user = userService.findByUsername(theUser.getUsername());
 		
 		if(encoder.matches(theUser.getPassword(), user.getPassword())) {
-			responce = new Responce(theUser.getUsername(),"LOGIN SUCCESS",true,theUser.isEnabled());
+			responce = new ResponceBody(theUser.getUsername(),"LOGIN SUCCESS",true,theUser.isEnabled());
 		}else{
-			responce = new Responce(theUser.getUsername(),"WRONG PASSWORD",false,theUser.isEnabled());
+			responce = new ResponceBody(theUser.getUsername(),"WRONG PASSWORD",false,theUser.isEnabled());
 		}
 		
 		return responce;
@@ -188,15 +232,19 @@ public class UserRestController {
 		
 		User user = userService.findById(theUser.getId());
 		
+		Roles roles = rolesRepository.findByUserId(theUser.getIdUserRole());
+		
 		if(user == null) {
 			throw new UserNotFoundException("User id not found - " + theUser.getId());
+		}else if (roles.getRole().equalsIgnoreCase(Util.Roles.ADMIN.name()) || roles.getRole().equalsIgnoreCase(Util.Roles.USER.name())) {
+			theUser.setPassword(Util.encryptePassword(theUser.getPassword()));
+			Util.getLogger(UserDAOImpl.class).warn("User: " + theUser.getEmail() + " " + theUser.getRole() + " " + theUser.getUsername() + " " + theUser.getId());
+			userService.update(theUser);
+			return theUser;
+		}else {
+			throw new ForbidenException("Unauthorized entry");
 		}
-		
-		theUser.setPassword(Util.encryptePassword(theUser.getPassword()));
-		
-		userService.update(theUser);
-		
-		return theUser;
+	
 	}
 	
 	/**
@@ -205,36 +253,37 @@ public class UserRestController {
 	 * @return message if user has been deleted.
 	 */
 	@DeleteMapping("/users/{userId}")
-	public String deleteuser(@PathVariable int userId) {
+	public ResponceBody deleteuser(@PathVariable int userId,@RequestBody Id id) {
+		
+		ResponceBody responce;
 		
 		User user = userService.findById(userId);
 		
+		Roles roles = rolesRepository.findByUserId(id.getId());
+		
 		if(user == null) {
 			throw new UserNotFoundException("User id not found - " + userId);
+		}else if(roles.getRole().equalsIgnoreCase(Util.Roles.ADMIN.name())){
+			userService.deleteById(userId);
+			return new ResponceBody(user.getUsername(),"Deleted employee id - " + userId,true,user.isEnabled());
+		}else {
+			throw new ForbidenException("Unauthorized entry");
 		}
 		
-		userService.deleteById(userId);
-		
-		return "Deleted employee id - " + userId;
 	}
 	
 	
 	
 	@PostMapping("/password-request-reset")
-	public Responce getUserMailResponce(@RequestBody String email)
+	public ResponceBody getUserMailResponce(@RequestBody String email)
 	{
-		//User user=userService.findByEmail(email);
+		User user=userService.findByEmail(email);
 		
-//		if(user == null) {
-//				
-//			throw new UserNotFoundException("User with that email is not found  ");
-//			
-//		    }	
-//		else {
-			User user = new User("test", "test", true);
-			sendPasswordMail(user,email);
-			return new Responce(user.getUsername(),"email has been sent",true,true);
-//			}
+		if(user == null) {
+			throw new UserNotFoundException("User with that email is not found - " + email);
+	    }else {
+			return new ResponceBody(user.getUsername(),"reset password email has been sent to: " + email,true,true);
+		}
 	}
 	
 	public String sendPasswordMail(User user, String email) {
@@ -252,10 +301,10 @@ public class UserRestController {
 
 	
 	@PostMapping("/password-page-reset")	
-	 public Responce getPassword(@RequestBody String password, @RequestParam("token")String confirmationToken) 
+	 public ResponceBody getPassword(@RequestBody String password, @RequestParam("token")String confirmationToken) 
 	{	
 		
-		Responce responce=null;
+		ResponceBody responce=null;
 		ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
     	
 		 
@@ -265,10 +314,10 @@ public class UserRestController {
     	user.setPassword(Util.encryptePassword(password));
     	userService.update(user);
     	Util.getLogger(UserRestController.class).warn("VALUES: " + user.getId() + " " + user.getPassword() + " " + confirmationToken + " " + password);
-        responce = new Responce(user.getUsername(),"User saved",true,user.isEnabled());
+        responce = new ResponceBody(user.getUsername(),"User saved",true,user.isEnabled());
         }
         else{
-        	responce = new Responce("error","wrong password",false,false);
+        	responce = new ResponceBody("error","wrong password",false,false);
         }
 		return responce;
 	}

@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.springboot.weedingband.dao.UserDAO;
-import com.springboot.weedingband.entity.Responce;
 import com.springboot.weedingband.entity.User;
+import com.springboot.weedingband.model.ResponceBody;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -25,12 +25,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public User findById(int theId) {
+	public User findById(long theId) {
 		return userDAO.findById(theId);
 	}
 
 	@Override
-	public Responce save(User theUser) {
+	public ResponceBody save(User theUser) {
 		return userDAO.save(theUser);
 	}
 	
@@ -49,10 +49,9 @@ public class UserServiceImpl implements UserService {
 		return userDAO.findByUsername(theUsername);
 	}
 
-	@Override
-	public User findByEmail(String email) {
-		
-		return userDAO.findByEmail(email);
+	public User findByEmail(String theEmail) {
+		return userDAO.findByEmail(theEmail);
+
 	}
 
 }

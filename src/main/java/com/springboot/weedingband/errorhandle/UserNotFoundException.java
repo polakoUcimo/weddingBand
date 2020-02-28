@@ -1,4 +1,4 @@
-package com.springboot.weedingband.rest;
+package com.springboot.weedingband.errorhandle;
 
 import org.springframework.http.HttpStatus;
 
