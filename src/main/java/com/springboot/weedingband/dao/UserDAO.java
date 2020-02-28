@@ -31,6 +31,12 @@ public interface UserDAO {
 	 * @return user with specific username.
 	 */
 	public User findByUsername(String theUsername);
+	/**
+	 * Find user by email
+	 * @param theUsername email
+	 * @return user with specific email.
+	 */
+	public User findByEmail(String email);
 	
 	/**
 	 * Find user by email

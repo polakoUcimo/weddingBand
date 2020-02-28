@@ -2,6 +2,8 @@ package com.springboot.weedingband.rest;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -114,6 +116,17 @@ public class UserRestController {
 		
 	}
 	
+	@GetMapping("/users/{usereEmail}")
+	public User findUserByEmail(@PathVariable String userEmail) {
+		
+		User user =userService.findByEmail(userEmail);
+		
+		if(user == null) {
+			throw new UserNotFoundException("User id not found - " +userEmail);
+		}
+		
+		return user;
+	}
 	
 	/**
 	 * Add user to the database logic.
@@ -143,13 +156,15 @@ public class UserRestController {
 		userService.save(theUser);
 		
 		ConfirmationToken confirmationToken = new ConfirmationToken(theUser);
-        confirmationTokenRepository.save(confirmationToken);
-        
+        confirmationTokenRepository.save(confirmationToken); 
+
+        String toMail = "kosovac.strahinja@gmail.com";
+
         Roles roles = new Roles(theUser,theUser.getRole());
         rolesRepository.save(roles);
-        
-        String toMail = "kovacjugoslav@gmail.com";
+
         String subject = "Complete Registration!";
+
         String fromMail="kovacjugoslav@gmail.com";
         String textMail="To confirm your account, please click here : \r\n" + 
         		"http://localhost:8080/confirm-account?token=" + confirmationToken.getConfirmationToken();
@@ -256,6 +271,56 @@ public class UserRestController {
 			throw new ForbidenException("Unauthorized entry");
 		}
 		
+	}
+	
+	
+	
+	@PostMapping("/password-request-reset")
+	public ResponceBody getUserMailResponce(@RequestBody String email)
+	{
+		User user=userService.findByEmail(email);
+		
+		if(user == null) {
+			throw new UserNotFoundException("User with that email is not found - " + email);
+	    }else {
+			return new ResponceBody(user.getUsername(),"reset password email has been sent to: " + email,true,true);
+		}
+	}
+	
+	public String sendPasswordMail(User user, String email) {
+		
+
+		ConfirmationToken confirmationToken = new ConfirmationToken(user);
+		confirmationTokenRepository.save(confirmationToken);
+	    
+	    String toMail = "kosovac.strahinja@gmail.com";
+	    String subject = "Complete Registration!";
+	    String fromMail="kosovac.strahinja@gmail.com";
+	    String textMail="To confirm your account, please click here : \"\r\n" + 
+	    		"        +\"http://localhost:8080/password-page-reset?token=" + confirmationToken.getConfirmationToken();
+    return Util.sendMail(emailSenderService,toMail, subject, fromMail, textMail);}
+
+	
+	@PostMapping("/password-page-reset")	
+	 public ResponceBody getPassword(@RequestBody String password, @RequestParam("token")String confirmationToken) 
+	{	
+		
+		ResponceBody responce=null;
+		ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
+    	
+		 
+        if(token != null) {
+		User user = userService.findById(token.getUser().getId());
+    	user.setEnabled(true);
+    	user.setPassword(Util.encryptePassword(password));
+    	userService.update(user);
+    	Util.getLogger(UserRestController.class).warn("VALUES: " + user.getId() + " " + user.getPassword() + " " + confirmationToken + " " + password);
+        responce = new ResponceBody(user.getUsername(),"User saved",true,user.isEnabled());
+        }
+        else{
+        	responce = new ResponceBody("error","wrong password",false,false);
+        }
+		return responce;
 	}
 	
 }
