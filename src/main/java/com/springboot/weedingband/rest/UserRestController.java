@@ -151,8 +151,8 @@ public class UserRestController {
         String toMail = "kovacjugoslav@gmail.com";
         String subject = "Complete Registration!";
         String fromMail="kovacjugoslav@gmail.com";
-        String textMail="To confirm your account, please click here : \"\r\n" + 
-        		"        +\"http://localhost:8080/confirm-account?token=" + confirmationToken.getConfirmationToken();
+        String textMail="To confirm your account, please click here : \r\n" + 
+        		"http://localhost:8080/confirm-account?token=" + confirmationToken.getConfirmationToken();
         
 		return Util.sendMail(emailSenderService,toMail, subject, fromMail, textMail);
 	}

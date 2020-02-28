@@ -5,7 +5,9 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -84,15 +86,9 @@ public class UserDAOImpl implements UserDAO {
 		
 		theQuery.setParameter("username", theUsername);
 		
-		List<User> user = theQuery.getResultList();
+		User user = theQuery.uniqueResult();
 		
-		for(int i=0;i<user.size();i++) {
-			if(user.get(i).getUsername().equalsIgnoreCase(theUsername)) {
-				return user.get(i);
-			}
-		}
-		
-		return null;
+		return user;
 	}
 	
 	/**
@@ -106,16 +102,10 @@ public class UserDAOImpl implements UserDAO {
 		Query<User> theQuery = currentSession.createQuery("from User where email=:email", User.class);
 
 		theQuery.setParameter("email", email);
-
-		List<User> user = theQuery.getResultList();
 		
-		for(int i=0;i<user.size();i++) {
-			if(user.get(i).getEmail().equalsIgnoreCase(email)) {
-				return user.get(i);
-			}
-		}
+		User user = theQuery.uniqueResult();
 
-		return null;
+		return user;
 	}
 
 	/**
