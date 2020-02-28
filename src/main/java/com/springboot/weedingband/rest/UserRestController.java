@@ -294,7 +294,7 @@ public class UserRestController {
 		confirmationTokenRepository.save(confirmationToken);
 	    
 	    String toMail = "kosovac.strahinja@gmail.com";
-	    String subject = "Complete Registration!";
+	    String subject = "Complete password reset!";
 	    String fromMail="kosovac.strahinja@gmail.com";
 	    String textMail="To confirm your account, please click here : \"\r\n" + 
 	    		"        +\"http://localhost:8080/password-page-reset?token=" + confirmationToken.getConfirmationToken();
