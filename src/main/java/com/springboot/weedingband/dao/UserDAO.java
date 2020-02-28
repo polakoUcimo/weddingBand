@@ -39,13 +39,6 @@ public interface UserDAO {
 	public User findByEmail(String email);
 	
 	/**
-	 * Find user by email
-	 * @param theEmail users email
-	 * @return user with specific email.
-	 */
-	public User findByEmail(String theEmail);
-	
-	/**
 	 * Save user.
 	 * @param theUser user
 	 * @return saves user to database.

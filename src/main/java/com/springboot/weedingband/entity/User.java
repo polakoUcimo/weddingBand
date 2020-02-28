@@ -36,7 +36,6 @@ public class User {
 	 * Users username.
 	 */
 	@Column(name = "username")
-	
 	private String username;
 	
 	/**

@@ -164,9 +164,10 @@ public class UserRestController {
         rolesRepository.save(roles);
 
         String subject = "Complete Registration!";
-        String fromMail="kosovac.strahinja@gmail.com";
-        String textMail="To confirm your account, please click here : \"\r\n" + 
-        		"        +\"http://localhost:8080/confirm-account?token=" + confirmationToken.getConfirmationToken();
+
+        String fromMail="kovacjugoslav@gmail.com";
+        String textMail="To confirm your account, please click here : \r\n" + 
+        		"http://localhost:8080/confirm-account?token=" + confirmationToken.getConfirmationToken();
         
 		return Util.sendMail(emailSenderService,toMail, subject, fromMail, textMail);
 	}
