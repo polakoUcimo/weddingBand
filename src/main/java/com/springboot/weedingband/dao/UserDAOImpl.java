@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Repository;
 
-import com.springboot.weedingband.entity.ConfirmationToken;
 import com.springboot.weedingband.entity.User;
 import com.springboot.weedingband.model.ResponceBody;
 import com.springboot.weedingband.util.Util;
@@ -33,12 +32,6 @@ public class UserDAOImpl implements UserDAO {
 	 * Hibernate session.
 	 */
 	private Session currentSession;
-	
-	/**
-	 * Confirmation token repository
-	 */
-	@Autowired
-    private ConfirmationTokenRepository confirmationTokenRepository;
 	
 	/**
 	 * Contructor with the entity manager set.
@@ -91,9 +84,38 @@ public class UserDAOImpl implements UserDAO {
 		
 		theQuery.setParameter("username", theUsername);
 		
-		User user = theQuery.uniqueResult();
+		List<User> user = theQuery.getResultList();
 		
-		return user;
+		for(int i=0;i<user.size();i++) {
+			if(user.get(i).getUsername().equalsIgnoreCase(theUsername)) {
+				return user.get(i);
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Find user by email
+	 */
+	@Override
+	public User findByEmail(String email) {
+
+		getSession();
+
+		Query<User> theQuery = currentSession.createQuery("from User where email=:email", User.class);
+
+		theQuery.setParameter("email", email);
+
+		List<User> user = theQuery.getResultList();
+		
+		for(int i=0;i<user.size();i++) {
+			if(user.get(i).getEmail().equalsIgnoreCase(email)) {
+				return user.get(i);
+			}
+		}
+
+		return null;
 	}
 
 	/**

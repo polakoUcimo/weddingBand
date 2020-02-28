@@ -57,7 +57,24 @@ public class RestExceptionHandler {
 		
 		ErrorResponse errorResponce = new ErrorResponse();
 		
-		errorResponce.setStatus(HttpStatus.FORBIDDEN.value());
+		errorResponce.setStatus(HttpStatus.UNAUTHORIZED.value());
+		errorResponce.setMessage(exc.getMessage());
+		errorResponce.setTimeStamp(System.currentTimeMillis());
+		
+		return new ResponseEntity<>(errorResponce, HttpStatus.FORBIDDEN);
+	}
+	
+	/**
+	 * Handle user exists.
+	 * @param exc exception
+	 * @return exception request code and message
+	 */
+	@ExceptionHandler
+	public ResponseEntity<ErrorResponse> handleUserExistsException(UserExistsException exc){
+		
+		ErrorResponse errorResponce = new ErrorResponse();
+		
+		errorResponce.setStatus(HttpStatus.CONFLICT.value());
 		errorResponce.setMessage(exc.getMessage());
 		errorResponce.setTimeStamp(System.currentTimeMillis());
 		

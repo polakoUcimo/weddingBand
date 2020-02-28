@@ -21,6 +21,7 @@ import com.springboot.weedingband.entity.Roles;
 import com.springboot.weedingband.entity.RolesRepository;
 import com.springboot.weedingband.entity.User;
 import com.springboot.weedingband.errorhandle.ForbidenException;
+import com.springboot.weedingband.errorhandle.UserExistsException;
 import com.springboot.weedingband.errorhandle.UserNotFoundException;
 import com.springboot.weedingband.model.Id;
 import com.springboot.weedingband.model.ResponceBody;
@@ -86,7 +87,7 @@ public class UserRestController {
 		}else if(roles.getRole().equalsIgnoreCase(Util.Roles.ADMIN.name())) {
 			return userService.findAll();
 		}else {
-			throw new ForbidenException("Forbiden entry");
+			throw new ForbidenException("Unauthorized entry");
 		}
 	
 	}
@@ -108,7 +109,7 @@ public class UserRestController {
 		}else if(roles.getRole().equalsIgnoreCase(Util.Roles.ADMIN.name())) {
 			return user;
 		}else {
-			throw new ForbidenException("Forbiden entry");
+			throw new ForbidenException("Unauthorized entry");
 		}
 		
 	}
@@ -122,11 +123,22 @@ public class UserRestController {
 	@PostMapping("/users")
 	public String addUser(@RequestBody User theUser) {
 		
+		User user = userService.findByUsername(theUser.getUsername());
+		
+		User user2 = userService.findByEmail(theUser.getEmail());
+		
+		if (user!=null) {
+			throw new UserExistsException("User allready exist with: " + theUser.getUsername());
+		}else if(user2!=null) {
+			throw new UserExistsException("User allready exist with: " + theUser.getEmail());
+		}
+		
 		theUser.setId(0);
 		
 		String encoder = Util.encryptePassword(theUser.getPassword());
 		
-		theUser.setPassword(encoder); 
+		theUser.setPassword(encoder);
+		
 		
 		userService.save(theUser);
 		
@@ -216,7 +228,7 @@ public class UserRestController {
 			userService.update(theUser);
 			return theUser;
 		}else {
-			throw new ForbidenException("Forbiden entry");
+			throw new ForbidenException("Unauthorized entry");
 		}
 	
 	}
@@ -241,7 +253,7 @@ public class UserRestController {
 			userService.deleteById(userId);
 			return new ResponceBody(user.getUsername(),"Deleted employee id - " + userId,true,user.isEnabled());
 		}else {
-			throw new ForbidenException("Forbiden entry");
+			throw new ForbidenException("Unauthorized entry");
 		}
 		
 	}
