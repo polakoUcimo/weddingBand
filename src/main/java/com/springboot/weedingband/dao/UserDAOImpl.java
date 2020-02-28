@@ -117,23 +117,6 @@ public class UserDAOImpl implements UserDAO {
 
 		return null;
 	}
-
-	/**
-	 * Find user by email
-	 */
-	@Override
-	public User findByEmail(String email) {
-		
-		getSession();
-		 
-		Query<User> theQuery = currentSession.createQuery("from User where email=:email", User.class);
-		
-		theQuery.setParameter("email", email);
-		
-		User user = theQuery.uniqueResult();
-		
-		return user;
-	}
 	
 	
 	/**
