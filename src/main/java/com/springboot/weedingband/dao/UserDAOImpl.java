@@ -117,7 +117,8 @@ public class UserDAOImpl implements UserDAO {
 
 		return null;
 	}
-
+	
+	
 	/**
 	 * Check if user exists, if not saves him to database.
 	 */

@@ -34,10 +34,10 @@ public interface UserService {
 	
 	/**
 	 * Find user by email
-	 * @param theEmail users email
+	 * @param email users email
 	 * @return the user with specific email.
 	 */
-	public User findByEmail(String theEmail);
+	public User findByEmail(String email);
 	
 	/**
 	 * Save user.
